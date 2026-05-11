@@ -80,7 +80,7 @@ function App() {
   if (mostrarSoloLogo) {
   return (
     <div className="full-screen-empty">
-      <img className="main-bg-logo" src="..\Logo-grande.png" alt="Fondo" />
+      <img className="main-bg-logo" src="/Logo-grande.png" alt="Fondo" />
       <div className="foreground-content">
         <h1 className="empty-phrase">
           BARRA LIBRE PARA <br />
@@ -94,9 +94,9 @@ function App() {
   return (
     <div className="app-container">
       <header className="main-header">
-        <img className="logo-small" src="..\Logo-peque.png" alt="Logo" />
+        <img className="logo-small" src="/Logo-peque.png" alt="Logo" />
         <h2 className="main-title">MENOS "BLA BLA BLA" Y MÁS "GLU GLU GLU"</h2>
-        <img className="logo-small" src="..\Logo-peque.png" alt="Logo" />
+        <img className="logo-small" src="/Logo-peque.png" alt="Logo" />
       </header>
       <section className="control-panel">
         <div className="input-group">
@@ -133,7 +133,7 @@ function App() {
       </section>
       <main className="main-content">
         <section className="active-bars-container">
-          {[...barrasActivas].reverse().map((b, index) => {
+          {[...barrasActivas].map((b, index) => {
               const porcentajeTiempo = ((b.segundosTotales - b.segundosRestantes) / b.segundosTotales) * 100;
               const esAlerta = b.segundosRestantes < 300;
               const isSpecialCard = barrasActivas.length === 1 && index === 0;

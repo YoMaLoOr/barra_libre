@@ -62,7 +62,7 @@ function servirCopa(id) {
 
   barra.copasConsumidas++;
 
-  if (barra.copasConsumidas >= barra.limiteCopas) {
+  if (barra.isPremium && barra.copasConsumidas >= barra.limiteCopas) {
     bloquearCliente(barra.cliente);
     eliminarBarra(id);
   }
@@ -102,7 +102,16 @@ setInterval(() => {
       const segundosConsumidos = b.segundosTotales - b.segundosRestantes;
       const slotActual = Math.floor(segundosConsumidos / 600); 
 
-      if (slotActual > b.copasSlot) {
+      if (slotActual > b.autoCopasDadas) {
+        b.autoCopasDadas = slotActual;
+        b.copasConsumidas++;
+        if (b.copasConsumidas >= b.limiteCopas) {
+          bloquearCliente(b.cliente);
+          eliminarBarra(b.id);
+          return false;
+        }
+
+      /*if (slotActual > b.copasSlot) {
         b.copasSlot = slotActual;
         if (b.copasSlot > b.copasConsumidas) {
           b.copasConsumidas++;
@@ -111,7 +120,7 @@ setInterval(() => {
             eliminarBarra(b.id);
             return false;
           }
-        }
+        }*/
       }
     }
 
