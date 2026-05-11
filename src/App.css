@@ -1,0 +1,449 @@
+/* --- ESTRUCTURA GLOBAL --- */
+body, html {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #000;
+  color: #fff;
+  font-family: Arial, sans-serif;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+/* HEADER */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  height: 80px;
+  flex-shrink: 0;
+}
+
+.logo-small { width: 100px; height: auto; }
+.main-title { font-size: clamp(1.2rem, 2vw, 2.2rem); text-align: center; flex: 1; }
+
+/* PANEL DE CONTROL (solo móvil) */
+.control-panel {
+  background-color: #111;
+  border: 2px solid #6a0dad;
+  border-radius: 16px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.input-group label {
+  color: #fff;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.input-group input {
+  background-color: #000;
+  color: #fff;
+  border: 2px solid #6a0dad;
+  border-radius: 10px;
+  padding: 0.75rem;
+  outline: none;
+}
+
+.plan-select {
+  background-color: #000;
+  color: #b266ff;
+  border: 2px solid #b266ff;
+  border-radius: 12px;
+  padding: 0.75rem;
+  font-weight: bold;
+  outline: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* CUERPO PRINCIPAL */
+.main-content {
+  display: flex;
+  flex: 1;
+  gap: 1.5rem;
+  overflow: hidden;
+  min-height: 0; /* Necesario para que los hijos flex no desborden */
+}
+
+/* =============================================
+   COLUMNA IZQUIERDA
+   --num-cards se inyecta desde React en el <section>
+   y cascada a todos los hijos automáticamente.
+   ============================================= */
+.active-bars-container {
+  flex: 0 0 80%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #6a0dad #111;
+}
+
+.active-bars-container::-webkit-scrollbar { width: 6px; }
+.active-bars-container::-webkit-scrollbar-track { background: #111; }
+.active-bars-container::-webkit-scrollbar-thumb { background: #6a0dad; border-radius: 3px; }
+
+/* --- TARJETA ---
+   Altura = espacio disponible / num-cards, con mín y máx razonables.
+   En pantallas grandes con pocas tarjetas no crecen infinito (max 260px).
+   Con muchas tarjetas no se hacen ilegibles (min 100px) → aparece scroll.
+*/
+.bar-card {
+  background-color: #111;
+  border: 2px solid #333;
+  border-radius: 16px;
+  padding: 0.8rem 1.2rem;
+  flex: 0 0 clamp(
+    100px,
+    calc((100vh - 140px - (var(--num-cards, 1) - 1) * 0.6rem) / var(--num-cards, 1)),
+    260px
+  );
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* 1. NOMBRE Y PLAN — arriba izquierda */
+.client-data {
+  position: absolute;
+  top: 0.8rem;
+  left: 1rem;
+  display: flex;
+  flex-direction: column;
+  z-index: 5;
+}
+
+/* Texto escala con la altura de la tarjeta */
+.client-name {
+  margin: 0;
+  font-size: clamp(0.75rem, calc(18vh / var(--num-cards, 1)), 1.8rem);
+}
+
+.plan-tag {
+  color: #999;
+  font-size: clamp(0.6rem, calc(10vh / var(--num-cards, 1)), 0.95rem);
+}
+
+/* 2. ICONOS — centro de la tarjeta */
+.icons-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  width: min(75%, 15rem);
+  z-index: 1;
+}
+
+/* Icono escala con la tarjeta, techo en 2.2rem para que no sean enormes en TV */
+.glass-icon {
+  font-size: clamp(1rem, calc(14vh / var(--num-cards, 1)), 2.2rem);
+  flex-shrink: 1;
+  transition:
+    color 0.6s ease,
+    opacity 0.6s ease,
+    filter 0.6s ease,
+    transform 0.4s ease;
+}
+
+.remaining-cups {
+  font-size: clamp(0.75rem, calc(8vh / var(--num-cards, 1)), 1.3rem);
+  font-weight: 700;
+  color: #fff;
+}
+
+.glass-icon.active {
+  color: #ff9900;
+  filter: drop-shadow(0 0 8px #ff9900);
+  opacity: 1;
+  transform: scale(1);
+}
+
+.glass-icon.spent {
+  color: #444;
+  opacity: 0.35;
+  filter: drop-shadow(0 0 0 transparent);
+  transform: scale(0.9);
+}
+
+/* 3. BOTONES — solo móvil */
+.actions {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+.btn-delete {
+  background-color: #1a0000;
+  color: #ff4d4d;
+  border: 2px solid #ff4d4d;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: clamp(0.75rem, 1vw, 1rem);
+}
+
+.btn-serve {
+  background-color: #000;
+  color: #b266ff;
+  border: 2px solid #b266ff;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: clamp(0.75rem, 1vw, 1rem);
+}
+
+/* 4. TIMER Y PROGRESO — abajo */
+.progress-wrapper {
+  margin-top: auto;
+  width: 100%;
+  z-index: 5;
+}
+
+.timer {
+  display: block;
+  text-align: right;
+  color: #b266ff;
+  font-weight: bold;
+  font-size: clamp(0.7rem, calc(7vh / var(--num-cards, 1)), 1.5rem);
+  margin-bottom: 4px;
+}
+
+.progress-container {
+  height: 8px;
+  background-color: #222;
+  border-radius: 10px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(to right, #6a0dad, #b266ff);
+  transition: width 0.5s ease;
+}
+
+/* COLUMNA DERECHA — Bloqueados */
+.blocked-sidebar {
+  flex: 0 0 18%;
+  background-color: rgba(60, 0, 0, 0.2);
+  border: 2px solid red;
+  color: red;
+  border-radius: 16px;
+  backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  padding: 1rem;
+  text-align: center;
+  font-weight: bold;
+  font-size: clamp(0.85rem, 1.1vw, 1.4rem);
+  border-bottom: 2px solid red;
+  flex-shrink: 0;
+}
+
+.sidebar-content {
+  padding: 1rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.blocked-item {
+  font-size: clamp(0.85rem, 0.95vw, 1.2rem);
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+}
+
+/* =============================================
+   DESKTOP / TV: ocultar controles y botones
+   ============================================= */
+@media (min-width: 769px) {
+  .control-panel,
+  .actions {
+    display: none;
+  }
+}
+
+/* =============================================
+   MÓVIL — layout de flujo normal (sin absolute)
+   ============================================= */
+@media (max-width: 768px) {
+  body, html { overflow: auto; height: auto; }
+
+  .app-container { overflow-y: auto; height: auto; }
+
+  .main-content {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
+
+  .active-bars-container {
+    flex: none;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* En móvil la tarjeta usa flujo normal — sin absolutas que se pisen */
+  .bar-card {
+    flex: none;
+    height: auto;
+    min-height: 160px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .client-data {
+    position: static;
+  }
+
+  .icons-container {
+    position: static;
+    transform: none;
+    width: 100%;
+    justify-content: center;
+    margin: 0.2rem 0;
+  }
+
+  .actions {
+    position: static;
+    transform: none;
+    padding: 0;
+    width: 100%;
+  }
+
+  /* Tamaños fijos para móvil, sin depender de num-cards */
+  .client-name { font-size: clamp(1rem, 4vw, 1.4rem); }
+  .plan-tag    { font-size: clamp(0.8rem, 3vw, 1rem); }
+  .glass-icon  { font-size: clamp(1.2rem, 5vw, 1.8rem); }  /* Reducido */
+  .remaining-cups { font-size: clamp(0.85rem, 3vw, 1.1rem); }
+  .timer       { font-size: clamp(0.85rem, 3.5vw, 1.2rem); }
+
+  .btn-delete, .btn-serve {
+    font-size: clamp(0.9rem, 3vw, 1rem);
+    padding: 0.5rem 0.9rem;
+  }
+
+  .blocked-sidebar {
+    flex: none;
+    width: 100%;
+    min-height: 180px;
+  }
+
+  .sidebar-header { font-size: clamp(1rem, 3vw, 1.3rem); }
+  .blocked-item   { font-size: clamp(0.9rem, 2.8vw, 1.1rem); }
+}
+
+/* =============================================
+   ANIMACIONES
+   ============================================= */
+.alert-pulse { animation: glow-red 2s infinite alternate; }
+
+@keyframes glow-red {
+  from { box-shadow: 0 0 5px rgba(255, 0, 0, 0.2); }
+  to   { box-shadow: 0 0 15px rgba(255, 0, 0, 0.5); }
+}
+
+@keyframes pulse-logo {
+  0%, 100% { transform: scale(1); opacity: 0.4; }
+  50%       { transform: scale(1.05); opacity: 1; }
+}
+
+/* PANTALLA VACÍA */
+.full-screen-empty {
+  width: 100vw;
+  height: 100vh;
+  background-color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.main-bg-logo {
+  position: absolute;
+  top: 7rem;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 35%;
+  max-height: 35%;
+  object-fit: contain;
+  opacity: 0.4;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.foreground-content {
+  position: relative;
+  top: 8rem;
+  z-index: 2;
+  width: 60%;
+  box-sizing: border-box;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: pulse-logo 4s infinite ease-in-out;
+}
+
+.empty-phrase {
+  color: #fff;
+  font-size: clamp(2rem, 5vw, 4rem);
+  text-align: center;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1;
+}
+
+.empty-phrase span {
+  color: #9a34ff;
+  display: block;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  margin-top: 20px;
+  text-shadow: 0 0 20px rgba(119, 31, 170, 0.8);
+}
