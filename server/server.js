@@ -50,7 +50,8 @@ function agregarBarra(cliente, planKey) {
     segundosRestantes: p.minutos * 60,
     limiteCopas: p.copas,
     copasConsumidas: 0,
-    copasSlot: 0
+    copasSlot: 0,
+    autoCopasDadas: 0
   });
 
   enviarEstado();
@@ -98,9 +99,10 @@ setInterval(() => {
       bloquearCliente(b.cliente);
       return false;
     }
+
     if (b.isPremium) {
       const segundosConsumidos = b.segundosTotales - b.segundosRestantes;
-      const slotActual = Math.floor(segundosConsumidos / 600); 
+      const slotActual = Math.floor(segundosConsumidos / 600);
 
       if (slotActual > b.autoCopasDadas) {
         b.autoCopasDadas = slotActual;
@@ -110,17 +112,6 @@ setInterval(() => {
           eliminarBarra(b.id);
           return false;
         }
-
-      /*if (slotActual > b.copasSlot) {
-        b.copasSlot = slotActual;
-        if (b.copasSlot > b.copasConsumidas) {
-          b.copasConsumidas++;
-          if (b.copasConsumidas >= b.limiteCopas) {
-            bloquearCliente(b.cliente);
-            eliminarBarra(b.id);
-            return false;
-          }
-        }*/
       }
     }
 
@@ -146,15 +137,12 @@ wss.on("connection", ws => {
         case "ADD_BARRA":
           agregarBarra(data.payload.cliente, data.payload.plan);
           break;
-
         case "SERVIR_COPA":
           servirCopa(data.payload.id);
           break;
-
         case "FINALIZAR_BARRA":
           finalizarBarra(data.payload.id);
           break;
-
         default:
           console.log("Mensaje desconocido:", data.type);
       }

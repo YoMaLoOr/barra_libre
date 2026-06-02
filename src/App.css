@@ -1,8 +1,7 @@
-/* --- AJUSTES DE ESTRUCTURA GLOBAL --- */
 body, html {
   margin: 0;
-  height: 100vh; /* Evita scroll global */
-  overflow: hidden; 
+  height: 100vh;
+  overflow: hidden;
   background-color: #000;
   color: #fff;
   font-family: Arial, sans-serif;
@@ -12,50 +11,54 @@ body, html {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  padding: 1rem;
+  padding: 0.75rem;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
-/* HEADER: Logos en esquinas, Título central */
 .main-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2.5rem;   /* más separación visual del main-content */
-  height: 100px;
+  flex-shrink: 0;
+  margin-bottom: 0.75rem;
+}
+
+.logo-small {
+  width: clamp(50px, 8vw, 130px);
+  height: auto;
   flex-shrink: 0;
 }
 
-.logo-small { width: 150px; height: auto; }   /* logos más grandes */
-.logo-large { width: auto; opacity: 0.2; }
-.main-title { font-size: clamp(2.2rem, 3.2vw, 4rem); text-align: center; flex: 1; }
-.logo-small:first-of-type {
-  left: 10px;
+.main-title {
+  font-size: clamp(0.8rem, 2vw, 2.5rem);
+  text-align: center;
+  flex: 1;
+  padding: 0 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.logo-small:last-of-type {
-  right: 10px;
-}
-
-/* PANEL DE CONTROL: Se oculta en escritorio */
 .control-panel {
-  background-color: #111;
-  border: 2px solid #6a0dad;
-  border-radius: 16px;
-  padding: 1rem;
-  margin-bottom: 2rem;
+  display: none;
 }
 
 .input-group {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.input-group:last-child {
+  margin-bottom: 0;
 }
 
 .input-group label {
   color: #fff;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
   font-weight: bold;
+  font-size: 0.9rem;
 }
 
 .input-group input {
@@ -63,8 +66,9 @@ body, html {
   color: #fff;
   border: 2px solid #6a0dad;
   border-radius: 10px;
-  padding: 0.75rem;
+  padding: 0.6rem;
   outline: none;
+  font-size: 1rem;
 }
 
 .plan-select {
@@ -72,181 +76,169 @@ body, html {
   color: #b266ff;
   border: 2px solid #b266ff;
   border-radius: 12px;
-  padding: 0.75rem;
+  padding: 0.6rem;
   font-weight: bold;
   outline: none;
   cursor: pointer;
   width: 100%;
+  font-size: 1rem;
 }
 
-/* CUERPO PRINCIPAL: 80% / 20% */
 .main-content {
   display: flex;
-  flex: 1; /* Ocupa el resto de la pantalla */
-  gap: 1.5rem;
-  overflow: hidden; /* Muy importante para que no haya scroll infinito */
+  flex: 1;
+  gap: 0.75rem;
+  overflow: hidden;
+  min-height: 0;
 }
 
-/* COLUMNA IZQUIERDA (80%) */
 .active-bars-container {
-  flex: 0 0 80%;
+  flex: 1;
   display: flex;
-  flex-direction: column; /* Stack en columna */
-  gap: 1rem;
-  height: 100%;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-height: 0;
+  overflow: hidden;
 }
 
-/* --- LA TARJETA (LA FLEXBOX) --- */
 .bar-card {
   background-color: #111;
   border: 2px solid #333;
-  border-radius: 16px;
-  padding: 1.5rem;
-  flex: 1; /* Se reparten el espacio disponible equitativamente */
-  display: flex;
-  flex-direction: column;
-  position: relative; /* Base para posicionar lo de adentro */
-  overflow: hidden;
+  border-radius: 12px;
+  padding: 0.4rem 1rem 0.3rem 1rem;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-rows: 1fr auto;
   box-sizing: border-box;
-  min-height: 120px;
+  overflow: hidden;
+  position: relative;
 }
 
-.bar-card.special-card {
-  flex: 0 0 33%;
-  min-height: unset;
+.btn-delete,
+.btn-serve {
+  display: none;
 }
 
-/* 1. NOMBRE Y PLAN: Arriba a la izquierda */
-.client-data {
-  position: absolute;
-  top: 1.5rem;
-  left: 1.5rem;
+.card-top {
+  grid-column: 1;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
-  z-index: 5;
+  justify-content: flex-start;
+  overflow: hidden;
+  min-width: 0;
 }
 
-.client-name { margin: 0; font-size: clamp(0.55rem, calc(8vh / var(--num-cards, 2)), 4rem); }
-.plan-tag { color: #999; font-size: clamp(0.4rem, calc(3vh / var(--num-cards, 2)), 1.1rem); }
+.client-name {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.05;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: calc(min(70vh / (var(--num-cards, 1) * 3.5 + 1), 22rem));
+}
 
-/* 2. ICONOS: Siempre en el centro de la tarjeta */
+.plan-tag {
+  margin: 0;
+  color: #777;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: calc(min(34vh / (var(--num-cards, 1) * 3.5 + 1), 7rem));
+}
+
 .icons-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  grid-column: 2;
+  grid-row: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
-  min-height: 0;
-  gap: 0.5rem;
-  width: 70%;
-  z-index: 1;
+  gap: 0.25em;
+  align-self: center;
+  justify-self: center;
+  padding: 0 0.5em;
 }
 
 .glass-icon {
-  /* Mínimo bajado a 0.5rem para que siga encogiendo con muchas tarjetas.
-     Antes el tope de 2rem impedía que se redujera aunque hubiera 6+ barras. */
-  font-size: clamp(0.5rem, calc(14vh / var(--num-cards, 2)), 5rem);
-  flex-shrink: 1;
-  transition:
-    color 0.6s ease,
-    opacity 0.6s ease,
-    filter 0.6s ease,
-    transform 0.4s ease;
+  font-size: calc(min(48vh / (var(--num-cards, 1) * 3.5 + 1), 18rem));
+  transition: color 0.4s, opacity 0.4s, filter 0.4s;
 }
 
 .glass-icon.active {
   color: #ff9900;
   filter: drop-shadow(0 0 8px #ff9900);
   opacity: 1;
-  transform: scale(0.8);
 }
 
 .glass-icon.spent {
   color: #444;
-  opacity: 0.35;
-  filter: drop-shadow(0 0 0 transparent);
-  transform: scale(0.6);
+  opacity: 0.3;
 }
 
-/* Contador de copas restantes (Premium) */
 .remaining-cups {
-  font-size: clamp(0.5rem, calc(10vh / var(--num-cards, 2)), 5rem);
+  font-size: calc(min(48vh / (var(--num-cards, 1) * 3.5 + 1), 18rem));
   font-weight: 700;
   color: #fff;
   line-height: 1;
+  flex-shrink: 0;
 }
 
-/* 3. BOTONES (Actions): Uno en cada lado (Solo móvil) */
-.actions {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  transform: translateY(-50%);
-  display: flex;
-  justify-content: space-between;
-  padding: 0 1rem;
-  width: 100%;
-  box-sizing: border-box;
-  z-index: 10;
-}
-
-.btn-delete {
-  background-color: #1a0000;
-  color: #ff4d4d;
-  border: 2px solid #ff4d4d;
-  border-radius: 10px;
-  padding: 0.6rem 1.2rem;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.btn-serve {
-  background-color: #000;
-  color: #b266ff;
-  border: 2px solid #b266ff;
-  border-radius: 10px;
-  padding: 0.6rem 1.2rem;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-
-/* 4. TEMPORIZADOR Y BARRA: Abajo */
 .progress-wrapper {
-  margin-top: auto; /* Empuja todo al fondo de la tarjeta */
-  width: 100%;
-  z-index: 5;
+  grid-column: 1 / 4;
+  grid-row: 2;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
 }
 
-/* El Timer: Abajo a la derecha, justo encima de la barra */
-.timer {
-  display: block;
-  text-align: right;
-  color: #b266ff;
-  font-weight: bold;
-  font-size: clamp(0.55rem, calc(8vh / var(--num-cards, 2)), 4rem);
-  margin-bottom: 4px;
+.progress-wrapper.stacked {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.progress-wrapper.stacked .progress-container {
+  flex: 1;
 }
 
 .progress-container {
-  height: 10px;
+  height: clamp(3px, calc(6vh / (var(--num-cards, 1) * 0.8 + 0.5)), 8px);
   background-color: #222;
   border-radius: 10px;
   overflow: hidden;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
 }
 
 .progress-fill {
   height: 100%;
   background: linear-gradient(to right, #6a0dad, #b266ff);
-  transition: width 0.5s ease;
+  transition: width 0.8s ease;
 }
 
-/* COLUMNA DERECHA: Bloqueados (Blurred Red) */
+.timer {
+  color: #b266ff;
+  font-weight: bold;
+  font-size: calc(min(14vh / (var(--num-cards, 1) * 1.5 + 0.5), 1.5rem));
+  line-height: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.time-alert {
+  color: #ff4d4d;
+  animation: blink-timer 1s infinite;
+}
+
+@keyframes blink-timer {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
 .blocked-sidebar {
   flex: 0 0 18%;
   background-color: rgba(60, 0, 0, 0.2);
@@ -256,107 +248,267 @@ body, html {
   backdrop-filter: blur(20px);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .sidebar-header {
-  padding: 1rem;
+  padding: 0.75rem;
   text-align: center;
   font-weight: bold;
-  font-size: 2rem;
+  font-size: clamp(0.6rem, 1.2vw, 1.5rem);
   border-bottom: 2px solid red;
+  line-height: 1.3;
 }
 
-.sidebar-content { 
-  padding: 1rem; 
-  font-size: 1.5rem;
-  overflow-y: hidden; /* Evita scroll interno */
+.sidebar-content {
+  padding: 0.75rem;
+  font-size: clamp(0.7rem, 1vw, 1.3rem);
+  overflow: hidden;
+  flex: 1;
 }
 
-/* --- RESPONSIVE LOGIC (768px) --- */
-
-@media (min-width: 769px) {
-  .control-panel, .actions {
-    display: none;
-  }
+.blocked-item {
+  margin-bottom: 0.4rem;
 }
 
 @media (max-width: 768px) {
-  body, html { overflow: auto; height: auto; }
-  .app-container { overflow-y: auto; height: auto; }
-  .main-content { flex-direction: column; height: auto; }
-  .active-bars-container, .blocked-sidebar { flex: 0 0 100%; width: 100%; }
-  .bar-card { min-height: 200px; margin-bottom: 10px; }
-  .icons-container { top: 40%; }
+  body, html {
+    overflow: auto;
+    height: auto;
+  }
+
+  .app-container {
+    overflow: hidden;
+    height: auto;
+    padding: 0.5rem;
+  }
+
+  .main-header {
+    margin-bottom: 0.5rem;
+  }
+
+  .main-title {
+    font-size: clamp(0.7rem, 3.5vw, 1.4rem);
+    white-space: normal;
+    text-align: center;
+  }
+
+  .control-panel {
+    display: block;
+    background-color: #111;
+    border: 2px solid #6a0dad;
+    border-radius: 16px;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .main-content {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .active-bars-container {
+    flex: none;
+    overflow: visible;
+    gap: 0.75rem;
+  }
+
+  .blocked-sidebar {
+    flex: none;
+    width: 100%;
+    max-height: 200px;
+  }
+
+  .bar-card {
+    display: flex;
+    grid-template-columns: unset;
+    grid-template-rows: unset;
+    min-height: 80px;
+    flex: none;
+    padding: 0.5rem;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .btn-delete {
+    display: block;
+    order: 1;
+    flex-shrink: 0;
+    align-self: center;
+    background-color: #1a0000;
+    color: #ff4d4d;
+    border: 2px solid #ff4d4d;
+    border-radius: 8px;
+    padding: 0.5rem 0.7rem;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: clamp(0.75rem, 2.5vw, 1rem);
+    white-space: nowrap;
+  }
+
+  .card-top {
+    order: 2;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .client-name {
+    grid-column: unset;
+    grid-row: unset;
+    font-size: clamp(1.1rem, 4.5vw, 1.9rem);
+    padding-top: 0;
+    margin: 0;
+    align-self: auto;
+  }
+
+  .plan-tag {
+    grid-column: unset;
+    grid-row: unset;
+    font-size: clamp(0.7rem, 2.5vw, 1rem);
+    margin: 0;
+    align-self: auto;
+  }
+
+  .icons-container {
+    order: 3;
+    grid-column: unset;
+    grid-row: unset;
+    align-self: center;
+    padding: 0 0.3rem;
+  }
+
+  .glass-icon {
+    font-size: clamp(1.3rem, 5.5vw, 2.2rem);
+  }
+
+  .remaining-cups {
+    font-size: clamp(1.3rem, 5.5vw, 2.2rem);
+  }
+
+  .btn-serve {
+    display: block;
+    order: 4;
+    flex-shrink: 0;
+    align-self: center;
+    background-color: #000;
+    color: #b266ff;
+    border: 2px solid #b266ff;
+    border-radius: 8px;
+    padding: 0.5rem 0.7rem;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: clamp(0.75rem, 2.5vw, 1rem);
+    white-space: nowrap;
+  }
+
+  .btn-serve:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .progress-wrapper {
+    order: 5;
+    grid-column: unset;
+    grid-row: unset;
+    width: 100%;
+    flex-direction: row;
+  }
+
+  .progress-wrapper.stacked {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .progress-wrapper.stacked .progress-container {
+    width: auto;
+    flex: 1;
+  }
+
+  .timer {
+    font-size: clamp(0.85rem, 3.5vw, 1.2rem);
+  }
 }
 
-/* Animaciones */
-.alert-pulse { animation: glow-red 2s infinite alternate; }
+.alert-pulse {
+  animation: glow-red 2s infinite alternate;
+}
+
 @keyframes glow-red {
   from { box-shadow: 0 0 5px rgba(255, 0, 0, 0.2); }
-  to { box-shadow: 0 0 15px rgba(255, 0, 0, 0.5); }
+  to   { box-shadow: 0 0 20px rgba(255, 0, 0, 0.6); }
 }
 
 @keyframes pulse-logo {
-  0%, 100% { transform: scale(1); opacity: 0.4; }
-  50% { transform: scale(1.05); opacity: 1; }
+  0%, 100% { transform: scale(1);    opacity: 0.9; }
+  50%       { transform: scale(1.03); opacity: 1;   }
 }
 
 .full-screen-empty {
   width: 100vw;
   height: 100vh;
-  background-color: #000; /* Color base del suelo */
+  background-color: #000;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  position: relative;
+  gap: 2rem;
   overflow: hidden;
 }
 
 .main-bg-logo {
-  position: absolute;
-  top: 17rem;              /* antes 7rem — baja el logo */
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 35%;
-  max-height: 35%;
+  width: clamp(200px, 30vw, 420px);
+  height: auto;
   object-fit: contain;
-  opacity: 0.4;
-  z-index: 1;
-  pointer-events: none;
+  opacity: 0.85;
+  animation: pulse-logo 4s infinite ease-in-out;
 }
 
-/* LA CAPA QUE TAPA AL LOGO */
 .foreground-content {
-  position: relative;
-  top: 13rem;              /* antes 8rem — baja la frase para seguir al logo */
-  z-index: 2;
-  width: 60%;
-  box-sizing: border-box;
-  background-color: rgba(0, 0, 0, 0.6);
-  padding: 2rem;
+  background-color: rgba(0, 0, 0, 0.55);
+  padding: 1.5rem 2.5rem;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
   animation: pulse-logo 4s infinite ease-in-out;
 }
 
-/* ESTILO DE LA FRASE */
 .empty-phrase {
   color: #fff;
-  font-size: clamp(2.4rem, 5.5vw, 4.5rem);   /* un poco más grande */
+  font-size: clamp(1.6rem, 4vw, 4rem);
   text-align: center;
   font-weight: 900;
   text-transform: uppercase;
   margin: 0;
-  line-height: 1;
+  line-height: 1.2;
 }
 
 .empty-phrase span {
   color: #9a34ff;
   display: block;
-  font-size: clamp(2.2rem, 5vw, 4rem);        /* un poco más grande */
-  margin-top: 20px;
+  font-size: clamp(1.4rem, 3.5vw, 3.5rem);
+  margin-top: 16px;
   text-shadow: 0 0 20px rgba(119, 31, 170, 0.8);
+}
+
+.connection-warning {
+  background: #330000;
+  color: #ff4d4d;
+  text-align: center;
+  padding: 0.4rem;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  flex-shrink: 0;
+  font-size: 0.9rem;
 }
