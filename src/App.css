@@ -1,8 +1,8 @@
-/* --- ESTRUCTURA GLOBAL --- */
+/* --- AJUSTES DE ESTRUCTURA GLOBAL --- */
 body, html {
   margin: 0;
-  height: 100vh;
-  overflow: hidden;
+  height: 100vh; /* Evita scroll global */
+  overflow: hidden; 
   background-color: #000;
   color: #fff;
   font-family: Arial, sans-serif;
@@ -16,26 +16,34 @@ body, html {
   box-sizing: border-box;
 }
 
-/* HEADER */
+/* HEADER: Logos en esquinas, Título central */
 .main-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
-  height: 80px;
+  margin-bottom: 2.5rem;   /* más separación visual del main-content */
+  height: 100px;
   flex-shrink: 0;
 }
 
-.logo-small { width: 100px; height: auto; }
-.main-title { font-size: clamp(1.2rem, 2vw, 2.2rem); text-align: center; flex: 1; }
+.logo-small { width: 150px; height: auto; }   /* logos más grandes */
+.logo-large { width: auto; opacity: 0.2; }
+.main-title { font-size: clamp(2.2rem, 3.2vw, 4rem); text-align: center; flex: 1; }
+.logo-small:first-of-type {
+  left: 10px;
+}
 
-/* PANEL DE CONTROL (solo móvil) */
+.logo-small:last-of-type {
+  right: 10px;
+}
+
+/* PANEL DE CONTROL: Se oculta en escritorio */
 .control-panel {
   background-color: #111;
   border: 2px solid #6a0dad;
   border-radius: 16px;
   padding: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .input-group {
@@ -71,80 +79,57 @@ body, html {
   width: 100%;
 }
 
-/* CUERPO PRINCIPAL */
+/* CUERPO PRINCIPAL: 80% / 20% */
 .main-content {
   display: flex;
-  flex: 1;
+  flex: 1; /* Ocupa el resto de la pantalla */
   gap: 1.5rem;
-  overflow: hidden;
-  min-height: 0; /* Necesario para que los hijos flex no desborden */
+  overflow: hidden; /* Muy importante para que no haya scroll infinito */
 }
 
-/* =============================================
-   COLUMNA IZQUIERDA
-   --num-cards se inyecta desde React en el <section>
-   y cascada a todos los hijos automáticamente.
-   ============================================= */
+/* COLUMNA IZQUIERDA (80%) */
 .active-bars-container {
   flex: 0 0 80%;
   display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+  flex-direction: column; /* Stack en columna */
+  gap: 1rem;
   height: 100%;
-  min-height: 0;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #6a0dad #111;
 }
 
-.active-bars-container::-webkit-scrollbar { width: 6px; }
-.active-bars-container::-webkit-scrollbar-track { background: #111; }
-.active-bars-container::-webkit-scrollbar-thumb { background: #6a0dad; border-radius: 3px; }
-
-/* --- TARJETA ---
-   Altura = espacio disponible / num-cards, con mín y máx razonables.
-   En pantallas grandes con pocas tarjetas no crecen infinito (max 260px).
-   Con muchas tarjetas no se hacen ilegibles (min 100px) → aparece scroll.
-*/
+/* --- LA TARJETA (LA FLEXBOX) --- */
 .bar-card {
   background-color: #111;
   border: 2px solid #333;
   border-radius: 16px;
-  padding: 0.8rem 1.2rem;
-  flex: 0 0 clamp(
-    100px,
-    calc((100vh - 140px - (var(--num-cards, 1) - 1) * 0.6rem) / var(--num-cards, 1)),
-    260px
-  );
+  padding: 1.5rem;
+  flex: 1; /* Se reparten el espacio disponible equitativamente */
   display: flex;
   flex-direction: column;
-  position: relative;
+  position: relative; /* Base para posicionar lo de adentro */
   overflow: hidden;
   box-sizing: border-box;
+  min-height: 120px;
 }
 
-/* 1. NOMBRE Y PLAN — arriba izquierda */
+.bar-card.special-card {
+  flex: 0 0 33%;
+  min-height: unset;
+}
+
+/* 1. NOMBRE Y PLAN: Arriba a la izquierda */
 .client-data {
   position: absolute;
-  top: 0.8rem;
-  left: 1rem;
+  top: 1.5rem;
+  left: 1.5rem;
   display: flex;
   flex-direction: column;
   z-index: 5;
 }
 
-/* Texto escala con la altura de la tarjeta */
-.client-name {
-  margin: 0;
-  font-size: clamp(0.75rem, calc(18vh / var(--num-cards, 1)), 1.8rem);
-}
+.client-name { margin: 0; font-size: clamp(0.55rem, calc(8vh / var(--num-cards, 2)), 4rem); }
+.plan-tag { color: #999; font-size: clamp(0.4rem, calc(3vh / var(--num-cards, 2)), 1.1rem); }
 
-.plan-tag {
-  color: #999;
-  font-size: clamp(0.6rem, calc(10vh / var(--num-cards, 1)), 0.95rem);
-}
-
-/* 2. ICONOS — centro de la tarjeta */
+/* 2. ICONOS: Siempre en el centro de la tarjeta */
 .icons-container {
   position: absolute;
   top: 50%;
@@ -154,14 +139,16 @@ body, html {
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  width: min(75%, 15rem);
+  min-height: 0;
+  gap: 0.5rem;
+  width: 70%;
   z-index: 1;
 }
 
-/* Icono escala con la tarjeta, techo en 2.2rem para que no sean enormes en TV */
 .glass-icon {
-  font-size: clamp(1rem, calc(14vh / var(--num-cards, 1)), 2.2rem);
+  /* Mínimo bajado a 0.5rem para que siga encogiendo con muchas tarjetas.
+     Antes el tope de 2rem impedía que se redujera aunque hubiera 6+ barras. */
+  font-size: clamp(0.5rem, calc(14vh / var(--num-cards, 2)), 5rem);
   flex-shrink: 1;
   transition:
     color 0.6s ease,
@@ -170,27 +157,29 @@ body, html {
     transform 0.4s ease;
 }
 
-.remaining-cups {
-  font-size: clamp(0.75rem, calc(8vh / var(--num-cards, 1)), 1.3rem);
-  font-weight: 700;
-  color: #fff;
-}
-
 .glass-icon.active {
   color: #ff9900;
   filter: drop-shadow(0 0 8px #ff9900);
   opacity: 1;
-  transform: scale(1);
+  transform: scale(0.8);
 }
 
 .glass-icon.spent {
   color: #444;
   opacity: 0.35;
   filter: drop-shadow(0 0 0 transparent);
-  transform: scale(0.9);
+  transform: scale(0.6);
 }
 
-/* 3. BOTONES — solo móvil */
+/* Contador de copas restantes (Premium) */
+.remaining-cups {
+  font-size: clamp(0.5rem, calc(10vh / var(--num-cards, 2)), 5rem);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+/* 3. BOTONES (Actions): Uno en cada lado (Solo móvil) */
 .actions {
   position: absolute;
   top: 50%;
@@ -210,10 +199,9 @@ body, html {
   color: #ff4d4d;
   border: 2px solid #ff4d4d;
   border-radius: 10px;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   font-weight: bold;
   cursor: pointer;
-  font-size: clamp(0.75rem, 1vw, 1rem);
 }
 
 .btn-serve {
@@ -221,30 +209,31 @@ body, html {
   color: #b266ff;
   border: 2px solid #b266ff;
   border-radius: 10px;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   font-weight: bold;
   cursor: pointer;
-  font-size: clamp(0.75rem, 1vw, 1rem);
 }
 
-/* 4. TIMER Y PROGRESO — abajo */
+
+/* 4. TEMPORIZADOR Y BARRA: Abajo */
 .progress-wrapper {
-  margin-top: auto;
+  margin-top: auto; /* Empuja todo al fondo de la tarjeta */
   width: 100%;
   z-index: 5;
 }
 
+/* El Timer: Abajo a la derecha, justo encima de la barra */
 .timer {
   display: block;
   text-align: right;
   color: #b266ff;
   font-weight: bold;
-  font-size: clamp(0.7rem, calc(7vh / var(--num-cards, 1)), 1.5rem);
+  font-size: clamp(0.55rem, calc(8vh / var(--num-cards, 2)), 4rem);
   margin-bottom: 4px;
 }
 
 .progress-container {
-  height: 8px;
+  height: 10px;
   background-color: #222;
   border-radius: 10px;
   overflow: hidden;
@@ -257,7 +246,7 @@ body, html {
   transition: width 0.5s ease;
 }
 
-/* COLUMNA DERECHA — Bloqueados */
+/* COLUMNA DERECHA: Bloqueados (Blurred Red) */
 .blocked-sidebar {
   flex: 0 0 18%;
   background-color: rgba(60, 0, 0, 0.2);
@@ -267,133 +256,55 @@ body, html {
   backdrop-filter: blur(20px);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 .sidebar-header {
   padding: 1rem;
   text-align: center;
   font-weight: bold;
-  font-size: clamp(0.85rem, 1.1vw, 1.4rem);
+  font-size: 2rem;
   border-bottom: 2px solid red;
-  flex-shrink: 0;
 }
 
-.sidebar-content {
-  padding: 1rem;
-  overflow-y: auto;
-  flex: 1;
+.sidebar-content { 
+  padding: 1rem; 
+  font-size: 1.5rem;
+  overflow-y: hidden; /* Evita scroll interno */
 }
 
-.blocked-item {
-  font-size: clamp(0.85rem, 0.95vw, 1.2rem);
-  line-height: 1.4;
-  margin-bottom: 0.5rem;
-}
+/* --- RESPONSIVE LOGIC (768px) --- */
 
-/* =============================================
-   DESKTOP / TV: ocultar controles y botones
-   ============================================= */
 @media (min-width: 769px) {
-  .control-panel,
-  .actions {
+  .control-panel, .actions {
     display: none;
   }
 }
 
-/* =============================================
-   MÓVIL — layout de flujo normal (sin absolute)
-   ============================================= */
 @media (max-width: 768px) {
   body, html { overflow: auto; height: auto; }
-
   .app-container { overflow-y: auto; height: auto; }
-
-  .main-content {
-    flex-direction: column;
-    height: auto;
-    overflow: visible;
-  }
-
-  .active-bars-container {
-    flex: none;
-    width: 100%;
-    height: auto;
-    overflow: visible;
-  }
-
-  /* En móvil la tarjeta usa flujo normal — sin absolutas que se pisen */
-  .bar-card {
-    flex: none;
-    height: auto;
-    min-height: 160px;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-
-  .client-data {
-    position: static;
-  }
-
-  .icons-container {
-    position: static;
-    transform: none;
-    width: 100%;
-    justify-content: center;
-    margin: 0.2rem 0;
-  }
-
-  .actions {
-    position: static;
-    transform: none;
-    padding: 0;
-    width: 100%;
-  }
-
-  /* Tamaños fijos para móvil, sin depender de num-cards */
-  .client-name { font-size: clamp(1rem, 4vw, 1.4rem); }
-  .plan-tag    { font-size: clamp(0.8rem, 3vw, 1rem); }
-  .glass-icon  { font-size: clamp(1.2rem, 5vw, 1.8rem); }  /* Reducido */
-  .remaining-cups { font-size: clamp(0.85rem, 3vw, 1.1rem); }
-  .timer       { font-size: clamp(0.85rem, 3.5vw, 1.2rem); }
-
-  .btn-delete, .btn-serve {
-    font-size: clamp(0.9rem, 3vw, 1rem);
-    padding: 0.5rem 0.9rem;
-  }
-
-  .blocked-sidebar {
-    flex: none;
-    width: 100%;
-    min-height: 180px;
-  }
-
-  .sidebar-header { font-size: clamp(1rem, 3vw, 1.3rem); }
-  .blocked-item   { font-size: clamp(0.9rem, 2.8vw, 1.1rem); }
+  .main-content { flex-direction: column; height: auto; }
+  .active-bars-container, .blocked-sidebar { flex: 0 0 100%; width: 100%; }
+  .bar-card { min-height: 200px; margin-bottom: 10px; }
+  .icons-container { top: 40%; }
 }
 
-/* =============================================
-   ANIMACIONES
-   ============================================= */
+/* Animaciones */
 .alert-pulse { animation: glow-red 2s infinite alternate; }
-
 @keyframes glow-red {
   from { box-shadow: 0 0 5px rgba(255, 0, 0, 0.2); }
-  to   { box-shadow: 0 0 15px rgba(255, 0, 0, 0.5); }
+  to { box-shadow: 0 0 15px rgba(255, 0, 0, 0.5); }
 }
 
 @keyframes pulse-logo {
   0%, 100% { transform: scale(1); opacity: 0.4; }
-  50%       { transform: scale(1.05); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 1; }
 }
 
-/* PANTALLA VACÍA */
 .full-screen-empty {
   width: 100vw;
   height: 100vh;
-  background-color: #000;
+  background-color: #000; /* Color base del suelo */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -403,7 +314,7 @@ body, html {
 
 .main-bg-logo {
   position: absolute;
-  top: 7rem;
+  top: 17rem;              /* antes 7rem — baja el logo */
   left: 50%;
   transform: translateX(-50%);
   max-width: 35%;
@@ -414,9 +325,10 @@ body, html {
   pointer-events: none;
 }
 
+/* LA CAPA QUE TAPA AL LOGO */
 .foreground-content {
   position: relative;
-  top: 8rem;
+  top: 13rem;              /* antes 8rem — baja la frase para seguir al logo */
   z-index: 2;
   width: 60%;
   box-sizing: border-box;
@@ -430,9 +342,10 @@ body, html {
   animation: pulse-logo 4s infinite ease-in-out;
 }
 
+/* ESTILO DE LA FRASE */
 .empty-phrase {
   color: #fff;
-  font-size: clamp(2rem, 5vw, 4rem);
+  font-size: clamp(2.4rem, 5.5vw, 4.5rem);   /* un poco más grande */
   text-align: center;
   font-weight: 900;
   text-transform: uppercase;
@@ -443,7 +356,7 @@ body, html {
 .empty-phrase span {
   color: #9a34ff;
   display: block;
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(2.2rem, 5vw, 4rem);        /* un poco más grande */
   margin-top: 20px;
   text-shadow: 0 0 20px rgba(119, 31, 170, 0.8);
 }
