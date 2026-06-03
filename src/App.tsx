@@ -160,7 +160,7 @@ function App() {
       </section>
 
       <main className="main-content">
-        <section className="active-bars-container">
+        <section className={`active-bars-container${numCards <= 2 ? ' few-cards' : ''}`}>
           {[...barrasActivas].reverse().map((b) => {
             const porcentajeTiempo = ((b.segundosTotales - b.segundosRestantes) / b.segundosTotales) * 100;
             const esAlerta = b.segundosRestantes < 300;

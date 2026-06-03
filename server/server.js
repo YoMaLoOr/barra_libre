@@ -1,5 +1,4 @@
 import { WebSocketServer } from "ws";
-
 const wss = new WebSocketServer({ port: 3001 });
 console.log("WebSocket server en ws://localhost:3001");
 
@@ -20,61 +19,57 @@ const planes = {
 function broadcast(data) {
   const msg = JSON.stringify(data);
   wss.clients.forEach(client => {
-    if (client.readyState === 1) {
-      client.send(msg);
-    }
+    if (client.readyState === 1) client.send(msg);
   });
 }
 
 function enviarEstado() {
-  broadcast({
-    type: "STATE_UPDATE",
-    payload: estado
-  });
+  // Calculamos segundosRestantes en el momento del envío para que el frontend no cambie
+  const payload = {
+    barrasActivas: estado.barrasActivas.map(b => ({
+      ...b,
+      segundosRestantes: Math.max(0, Math.ceil((b.expiraEn - Date.now()) / 1000))
+    })),
+    bloqueados: estado.bloqueados
+  };
+  broadcast({ type: "STATE_UPDATE", payload });
 }
 
 function agregarBarra(cliente, planKey) {
   if (!planes[planKey]) return;
-
   const nombre = cliente.toLowerCase();
   if (estado.bloqueados.includes(nombre)) return;
-
   const p = planes[planKey];
-
+  const segundosTotales = p.minutos * 60;
   estado.barrasActivas.unshift({
     id: Math.random().toString(36).slice(2),
     cliente,
     tipo: p.tipo,
     isPremium: p.premium,
-    segundosTotales: p.minutos * 60,
-    segundosRestantes: p.minutos * 60,
+    segundosTotales,
+    expiraEn: Date.now() + segundosTotales * 1000,
     limiteCopas: p.copas,
     copasConsumidas: 0,
     copasSlot: 0,
     autoCopasDadas: 0
   });
-
   enviarEstado();
 }
 
 function servirCopa(id) {
   const barra = estado.barrasActivas.find(b => b.id === id);
   if (!barra) return;
-
   barra.copasConsumidas++;
-
   if (barra.isPremium && barra.copasConsumidas >= barra.limiteCopas) {
     bloquearCliente(barra.cliente);
     eliminarBarra(id);
   }
-
   enviarEstado();
 }
 
 function finalizarBarra(id) {
   const barra = estado.barrasActivas.find(b => b.id === id);
   if (!barra) return;
-
   eliminarBarra(id);
   bloquearCliente(barra.cliente);
   enviarEstado();
@@ -82,9 +77,7 @@ function finalizarBarra(id) {
 
 function bloquearCliente(cliente) {
   const nombre = cliente.toLowerCase();
-  if (!estado.bloqueados.includes(nombre)) {
-    estado.bloqueados.push(nombre);
-  }
+  if (!estado.bloqueados.includes(nombre)) estado.bloqueados.push(nombre);
 }
 
 function eliminarBarra(id) {
@@ -92,24 +85,27 @@ function eliminarBarra(id) {
 }
 
 setInterval(() => {
-  estado.barrasActivas = estado.barrasActivas.filter(b => {
-    b.segundosRestantes--;
+  const ahora = Date.now();
+  let huboExpiraciones = false;
 
-    if (b.segundosRestantes <= 0) {
+  estado.barrasActivas = estado.barrasActivas.filter(b => {
+    const segundosRestantes = Math.ceil((b.expiraEn - ahora) / 1000);
+
+    if (segundosRestantes <= 0) {
       bloquearCliente(b.cliente);
+      huboExpiraciones = true;
       return false;
     }
 
     if (b.isPremium) {
-      const segundosConsumidos = b.segundosTotales - b.segundosRestantes;
+      const segundosConsumidos = b.segundosTotales - segundosRestantes;
       const slotActual = Math.floor(segundosConsumidos / 600);
-
       if (slotActual > b.autoCopasDadas) {
         b.autoCopasDadas = slotActual;
         b.copasConsumidas++;
         if (b.copasConsumidas >= b.limiteCopas) {
           bloquearCliente(b.cliente);
-          eliminarBarra(b.id);
+          huboExpiraciones = true;
           return false;
         }
       }
@@ -123,35 +119,28 @@ setInterval(() => {
 
 wss.on("connection", ws => {
   console.log("Cliente conectado");
-
-  ws.send(JSON.stringify({
-    type: "STATE_UPDATE",
-    payload: estado
-  }));
+  const payload = {
+    barrasActivas: estado.barrasActivas.map(b => ({
+      ...b,
+      segundosRestantes: Math.max(0, Math.ceil((b.expiraEn - Date.now()) / 1000))
+    })),
+    bloqueados: estado.bloqueados
+  };
+  ws.send(JSON.stringify({ type: "STATE_UPDATE", payload }));
 
   ws.on("message", msg => {
     try {
       const data = JSON.parse(msg.toString());
-
       switch (data.type) {
-        case "ADD_BARRA":
-          agregarBarra(data.payload.cliente, data.payload.plan);
-          break;
-        case "SERVIR_COPA":
-          servirCopa(data.payload.id);
-          break;
-        case "FINALIZAR_BARRA":
-          finalizarBarra(data.payload.id);
-          break;
-        default:
-          console.log("Mensaje desconocido:", data.type);
+        case "ADD_BARRA":    agregarBarra(data.payload.cliente, data.payload.plan); break;
+        case "SERVIR_COPA":  servirCopa(data.payload.id); break;
+        case "FINALIZAR_BARRA": finalizarBarra(data.payload.id); break;
+        default: console.log("Mensaje desconocido:", data.type);
       }
     } catch (e) {
       console.error("Mensaje inválido", e);
     }
   });
 
-  ws.on("close", () => {
-    console.log("Cliente desconectado");
-  });
+  ws.on("close", () => console.log("Cliente desconectado"));
 });
