@@ -46,8 +46,14 @@ function App() {
     window.addEventListener('resize', handleResize);
 
     let reconnectTimeout: ReturnType<typeof setTimeout>;
+    // FIX: flag para distinguir cierre intencionado (unmount/cleanup)
+    // de una desconexión real. Sin esto, el cleanup dispara onclose
+    // que schedula un nuevo timeout que nadie cancela, rompiendo la reconexión.
+    let unmounted = false;
 
     function conectar() {
+      if (unmounted) return;
+
       const socket = new WebSocket(`ws://${window.location.hostname}:3001`);
       wsRef.current = socket;
 
@@ -62,6 +68,7 @@ function App() {
       };
 
       socket.onclose = () => {
+        if (unmounted) return;
         setConectado(false);
         reconnectTimeout = setTimeout(conectar, 3000);
       };
@@ -74,8 +81,9 @@ function App() {
     conectar();
 
     return () => {
+      unmounted = true;
       clearTimeout(reconnectTimeout);
-      wsRef.current?.close();
+      wsRef.current?.close(); 
       window.removeEventListener('resize', handleResize);
     };
   }, []);
